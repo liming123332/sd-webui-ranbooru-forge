@@ -672,6 +672,8 @@ class Script(scripts.Script):
         super().__init__()
         self.prompt_area = [None, None]
         self.prompt_row = [None, None]
+        self.input_row = [None, None]
+        self.action_row = [None, None]
         self.on_after_component_elem_id = [
             ("txt2img_prompt_row", lambda x: self.create_prompt_row(0, x)),
             ("img2img_prompt_row", lambda x: self.create_prompt_row(1, x)),
@@ -681,6 +683,8 @@ class Script(scripts.Script):
 
     def create_prompt_row(self, i2i, component):
         self.prompt_row[i2i] = gr.Row()
+        self.input_row[i2i] = gr.Row()
+        self.action_row[i2i] = gr.Row()
 
     def set_prompt_area(self, i2i, component):
         self.prompt_area[i2i] = component.component
@@ -786,59 +790,64 @@ class Script(scripts.Script):
         initial_clear_visible = has_saved
         
         row_container = self.prompt_row[is_img2img] or gr.Row()
+        input_row = self.input_row[is_img2img] or gr.Row()
+        action_row = self.action_row[is_img2img] or gr.Row()
         with row_container:
-            with gr.Column(scale=1, min_width=180):
-                tags = gr.Textbox(lines=1, label="Tags to Search (Pre)")
-                tag_prompt_input = gr.Textbox(lines=3, label="Tag Prompt")
-                generate_prompt_btn = gr.Button("生成提示词")
-            with gr.Column(scale=6):
-                with InputAccordion(False, label="Ranbooru", elem_id=self.elem_id("ra_enable")) as enabled:
-                    with gr.Row():
-                        with gr.Column(scale=1):
-                            booru = gr.Dropdown(["safebooru", "rule34", "danbooru", "gelbooru", 'aibooru', 'xbooru', 'e621'], label="Booru", value="safebooru")
-                            max_pages = gr.Slider(label="Max Pages", minimum=1, maximum=100, value=100, step=1)
-                            gr.Markdown("""## Post""")
-                            post_id = gr.Textbox(lines=1, label="Post ID")
-                            gr.Markdown("""## Tags""")
-                            remove_tags = gr.Textbox(lines=1, label="Tags to Remove (Post)")
-                            with gr.Group():
-                                with gr.Box():
-                                    prompt_output = gr.Textbox(lines=4, label="提示词输出")
-                        with gr.Column(scale=1):
-                            mature_rating = gr.Radio(list(RATINGS['safebooru']), label="Mature Rating", value="All")
-                            remove_bad_tags = gr.Checkbox(label="Remove bad tags", value=True)
-                            shuffle_tags = gr.Checkbox(label="Shuffle tags", value=True)
-                            change_dash = gr.Checkbox(label='Convert "_" to spaces', value=False)
-                            same_prompt = gr.Checkbox(label="Use same prompt for all images", value=False)
-                            fringe_benefits = gr.Checkbox(label="Fringe Benefits", value=True)
-                            with gr.Group(visible=True) as gelbooru_credentials_group:
-                                gr.Markdown("### API Credentials")
-                                api_key = gr.Textbox(
-                                    lines=1, label="API Key", placeholder="Enter your API key",
-                                    type="password", visible=initial_api_key_visible, value=saved_creds.get('api_key', '')
-                                )
-                                user_id = gr.Textbox(
-                                    lines=1, label="User ID", placeholder="Enter your user ID",
-                                    visible=initial_user_id_visible, value=saved_creds.get('user_id', '')
-                                )
-                                save_credentials = gr.Checkbox(label="Save credentials", value=False, visible=True)
-                                credentials_status = gr.Textbox(
-                                    label="Status", interactive=False,
-                                    visible=True, value=initial_status_value
-                                )
-                                clear_credentials_btn = gr.Button(
-                                    "Clear saved credentials", visible=initial_clear_visible
-                                )
-                            limit_tags = gr.Slider(value=1.0, label="Limit tags", minimum=0.05, maximum=1.0, step=0.05)
-                            max_tags = gr.Slider(value=100, label="Max tags", minimum=1, maximum=100, step=1)
-                            change_background = gr.Radio(["Don't Change", "Add Background", "Remove Background", "Remove All"], label="Change Background", value="Don't Change")
-                            change_color = gr.Radio(["Don't Change", "Colored", "Limited Palette", "Monochrome"], label="Change Color", value="Don't Change")
-                            sorting_order = gr.Radio(["Random", "High Score", "Low Score"], label="Sorting Order", value="Random")            
+            with input_row:
+                with gr.Column(scale=2, min_width=220):
+                    tags = gr.Textbox(lines=1, label="Tags to Search (Pre)")
+                with gr.Column(scale=8):
+                    tag_prompt_input = gr.Textbox(lines=3, label="Tag Prompt")
+            with action_row:
+                with gr.Column(scale=2, min_width=220):
+                    generate_prompt_btn = gr.Button("生成提示词")
+                with gr.Column(scale=8):
+                    with InputAccordion(False, open=False, label="Ranbooru", elem_id=self.elem_id("ra_enable")) as enabled:
+                        with gr.Row():
+                            with gr.Column(scale=1):
+                                booru = gr.Dropdown(["safebooru", "rule34", "danbooru", "gelbooru", 'aibooru', 'xbooru', 'e621'], label="Booru", value="safebooru")
+                                max_pages = gr.Slider(label="Max Pages", minimum=1, maximum=100, value=100, step=1)
+                                gr.Markdown("""## Post""")
+                                post_id = gr.Textbox(lines=1, label="Post ID")
+                                gr.Markdown("""## Tags""")
+                                remove_tags = gr.Textbox(lines=1, label="Tags to Remove (Post)")
+                                with gr.Group():
+                                    with gr.Box():
+                                        prompt_output = gr.Textbox(lines=3, label="提示词输出")
+                            with gr.Column(scale=1):
+                                mature_rating = gr.Radio(list(RATINGS['safebooru']), label="Mature Rating", value="All")
+                                remove_bad_tags = gr.Checkbox(label="Remove bad tags", value=True)
+                                shuffle_tags = gr.Checkbox(label="Shuffle tags", value=True)
+                                change_dash = gr.Checkbox(label='Convert "_" to spaces', value=False)
+                                same_prompt = gr.Checkbox(label="Use same prompt for all images", value=False)
+                                fringe_benefits = gr.Checkbox(label="Fringe Benefits", value=True)
+                                with gr.Group(visible=False) as gelbooru_credentials_group:
+                                    gr.Markdown("### API Credentials")
+                                    api_key = gr.Textbox(
+                                        lines=1, label="API Key", placeholder="Enter your API key",
+                                        type="password", visible=initial_api_key_visible, value=saved_creds.get('api_key', '')
+                                    )
+                                    user_id = gr.Textbox(
+                                        lines=1, label="User ID", placeholder="Enter your user ID",
+                                        visible=initial_user_id_visible, value=saved_creds.get('user_id', '')
+                                    )
+                                    save_credentials = gr.Checkbox(label="Save credentials", value=False, visible=True)
+                                    credentials_status = gr.Textbox(
+                                        label="Status", interactive=False,
+                                        visible=True, value=initial_status_value
+                                    )
+                                    clear_credentials_btn = gr.Button(
+                                        "Clear saved credentials", visible=initial_clear_visible
+                                    )
+                                limit_tags = gr.Slider(value=1.0, label="Limit tags", minimum=0.05, maximum=1.0, step=0.05)
+                                max_tags = gr.Slider(value=100, label="Max tags", minimum=1, maximum=100, step=1)
+                                change_background = gr.Radio(["Don't Change", "Add Background", "Remove Background", "Remove All"], label="Change Background", value="Don't Change")
+                                change_color = gr.Radio(["Don't Change", "Colored", "Limited Palette", "Monochrome"], label="Change Color", value="Don't Change")
+                                sorting_order = gr.Radio(["Random", "High Score", "Low Score"], label="Sorting Order", value="Random")            
                     booru.change(get_available_ratings, booru, mature_rating)
                     booru.change(show_fringe_benefits, booru, fringe_benefits)
                     booru.change(self.show_gelbooru_api_fields, booru, gelbooru_credentials_group)
 
-                    gr.Markdown("""\n---\n""")
                     with gr.Group():
                         with gr.Accordion("Img2Img", open=False):
                             use_img2img = gr.Checkbox(label="Use img2img", value=False)
@@ -858,17 +867,13 @@ class Script(scripts.Script):
                             remove_refresh_btn = gr.Button("Refresh")
                     with gr.Group():
                         with gr.Accordion("Extra", open=False):
-                            with gr.Box():
-                                mix_prompt = gr.Checkbox(label="Mix prompts", value=False)
-                                mix_amount = gr.Slider(value=2, label="Mix amount", minimum=2, maximum=10, step=1)
-                            with gr.Box():
-                                chaos_mode = gr.Radio(["None", "Chaos", "Less Chaos"], label="Chaos Mode", value="None")
-                                chaos_amount = gr.Slider(value=0.5, label="Chaos Amount %", minimum=0.1, maximum=1, step=0.05)
-                            with gr.Box():
-                                negative_mode = gr.Radio(["None", "Negative"], label="Negative Mode", value="None")
-                                use_same_seed = gr.Checkbox(label="Use same seed for all pictures", value=False)
-                            with gr.Box():
-                                use_cache = gr.Checkbox(label="Use cache", value=True)
+                            mix_prompt = gr.Checkbox(label="Mix prompts", value=False)
+                            mix_amount = gr.Slider(value=2, label="Mix amount", minimum=2, maximum=10, step=1)
+                            chaos_mode = gr.Radio(["None", "Chaos", "Less Chaos"], label="Chaos Mode", value="None")
+                            chaos_amount = gr.Slider(value=0.5, label="Chaos Amount %", minimum=0.1, maximum=1, step=0.05)
+                            negative_mode = gr.Radio(["None", "Negative"], label="Negative Mode", value="None")
+                            use_same_seed = gr.Checkbox(label="Use same seed for all pictures", value=False)
+                            use_cache = gr.Checkbox(label="Use cache", value=True)
         with InputAccordion(False, label="LoRAnado", elem_id=self.elem_id("lo_enable")) as lora_enabled:
             with gr.Box():
                 lora_lock_prev = gr.Checkbox(label="Lock previous LoRAs", value=False)
