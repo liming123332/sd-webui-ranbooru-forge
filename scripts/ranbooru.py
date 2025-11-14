@@ -802,7 +802,8 @@ class Script(scripts.Script):
                 with gr.Column(scale=2, min_width=220):
                     generate_prompt_btn = gr.Button("生成提示词")
                 with gr.Column(scale=8):
-                    with InputAccordion(False, open=False, label="Ranbooru", elem_id=self.elem_id("ra_enable")) as enabled:
+                    with gr.Accordion(label="Ranbooru", open=False):
+                        enabled = gr.Checkbox(label="Enabled", value=False)
                         with gr.Row():
                             with gr.Column(scale=1):
                                 booru = gr.Dropdown(["safebooru", "rule34", "danbooru", "gelbooru", 'aibooru', 'xbooru', 'e621'], label="Booru", value="safebooru")
@@ -843,12 +844,11 @@ class Script(scripts.Script):
                                 max_tags = gr.Slider(value=100, label="Max tags", minimum=1, maximum=100, step=1)
                                 change_background = gr.Radio(["Don't Change", "Add Background", "Remove Background", "Remove All"], label="Change Background", value="Don't Change")
                                 change_color = gr.Radio(["Don't Change", "Colored", "Limited Palette", "Monochrome"], label="Change Color", value="Don't Change")
-                                sorting_order = gr.Radio(["Random", "High Score", "Low Score"], label="Sorting Order", value="Random")            
-                    booru.change(get_available_ratings, booru, mature_rating)
-                    booru.change(show_fringe_benefits, booru, fringe_benefits)
-                    booru.change(self.show_gelbooru_api_fields, booru, gelbooru_credentials_group)
+                            sorting_order = gr.Radio(["Random", "High Score", "Low Score"], label="Sorting Order", value="Random")            
+                        booru.change(get_available_ratings, booru, mature_rating)
+                        booru.change(show_fringe_benefits, booru, fringe_benefits)
+                        booru.change(self.show_gelbooru_api_fields, booru, gelbooru_credentials_group)
 
-                    with gr.Group():
                         with gr.Accordion("Img2Img", open=False):
                             use_img2img = gr.Checkbox(label="Use img2img", value=False)
                             use_ip = gr.Checkbox(label="Send to Controlnet", value=False)
@@ -857,7 +857,6 @@ class Script(scripts.Script):
                             crop_center = gr.Checkbox(label="Crop Center", value=False)
                             use_deepbooru = gr.Checkbox(label="Use Deepbooru", value=False)
                             type_deepbooru = gr.Radio(["Add Before", "Add After", "Replace"], label="Deepbooru Tags Position", value="Add Before")
-                    with gr.Group():
                         with gr.Accordion("File", open=False):
                             use_search_txt = gr.Checkbox(label="Use tags_search.txt", value=False)
                             choose_search_txt = gr.Dropdown(self.get_files(user_search_dir), label="Choose tags_search.txt", value="")
@@ -865,7 +864,6 @@ class Script(scripts.Script):
                             use_remove_txt = gr.Checkbox(label="Use tags_remove.txt", value=False)
                             choose_remove_txt = gr.Dropdown(self.get_files(user_remove_dir), label="Choose tags_remove.txt", value="")
                             remove_refresh_btn = gr.Button("Refresh")
-                    with gr.Group():
                         with gr.Accordion("Extra", open=False):
                             mix_prompt = gr.Checkbox(label="Mix prompts", value=False)
                             mix_amount = gr.Slider(value=2, label="Mix amount", minimum=2, maximum=10, step=1)
