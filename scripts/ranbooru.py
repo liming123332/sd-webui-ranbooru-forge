@@ -810,7 +810,7 @@ class Script(scripts.Script):
                         with gr.Row():
                             with gr.Column(scale=1):
                                 booru = gr.Dropdown(["safebooru", "rule34", "danbooru", "gelbooru", 'aibooru', 'xbooru', 'e621'], label="Booru", value="safebooru")
-                                max_pages = gr.Slider(label="Max Pages", minimum=1, maximum=100, value=100, step=1)
+                                max_pages = gr.Number(label="Max Pages", minimum=1, maximum=9999, value=100, step=1, precision=0)
                                 gr.Markdown("""## Post""")
                                 post_id = gr.Textbox(lines=1, label="Post ID")
                                 gr.Markdown("""## Tags""")
@@ -974,6 +974,7 @@ class Script(scripts.Script):
         return p
 
     def before_process(self, p, enabled, tags, booru, remove_bad_tags, max_pages, change_dash, same_prompt, fringe_benefits, remove_tags, use_img2img, denoising, use_last_img, change_background, change_color, shuffle_tags, post_id, mix_prompt, mix_amount, chaos_mode, negative_mode, chaos_amount, limit_tags, max_tags, sorting_order, mature_rating, lora_folder, lora_amount, lora_min, lora_max, lora_enabled, lora_custom_weights, lora_lock_prev, use_ip, use_search_txt, use_remove_txt, choose_search_txt, choose_remove_txt, search_refresh_btn, remove_refresh_btn, crop_center, use_deepbooru, type_deepbooru, use_same_seed, use_cache, api_key, user_id, save_credentials, credentials_status, clear_credentials_btn):
+        max_pages = int(max_pages)
         if use_cache:
             if HAS_REQUESTS_CACHE and not requests_cache.patcher.is_installed():
                 requests_cache.install_cache('ranbooru_cache', backend='sqlite', expire_after=3600)
@@ -1342,6 +1343,7 @@ class Script(scripts.Script):
                 processed.infotexts.append(proc.infotexts[num + 1])
 
     def generate_prompts_only(self, booru, max_pages, post_id, tags, remove_bad_tags, remove_tags, change_background, change_color, shuffle_tags, change_dash, mix_prompt, mix_amount, use_search_txt, choose_search_txt, use_remove_txt, choose_remove_txt, fringe_benefits, use_cache, api_key, user_id, save_credentials, mature_rating, sorting_order, limit_tags, max_tags):
+        max_pages = int(max_pages)
         if use_cache:
             if HAS_REQUESTS_CACHE and not requests_cache.patcher.is_installed():
                 requests_cache.install_cache('ranbooru_cache', backend='sqlite', expire_after=3600)
